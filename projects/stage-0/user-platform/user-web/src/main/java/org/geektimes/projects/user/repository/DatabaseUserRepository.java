@@ -25,8 +25,7 @@ public class DatabaseUserRepository implements UserRepository {
      */
     private static Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> logger.log(Level.SEVERE, e.getMessage());
 
-    public static final String INSERT_USER_DML_SQL =
-            "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
+    public static final String INSERT_USER_DML_SQL = "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
                     "(?,?,?,?)";
 
     public static final String QUERY_ALL_USERS_DML_SQL = "SELECT id,name,password,email,phoneNumber FROM users";
@@ -43,7 +42,19 @@ public class DatabaseUserRepository implements UserRepository {
 
     @Override
     public boolean save(User user) {
-        return false;
+        Connection connection = getConnection();
+        try {
+            PreparedStatement createStatement = connection.prepareStatement(INSERT_USER_DML_SQL);
+            createStatement.setString(1, user.getName());
+            createStatement.setString(2, user.getPassword());
+            createStatement.setString(3, user.getEmail());
+            createStatement.setString(4, user.getPhoneNumber());
+            createStatement.execute();
+        }catch (SQLException ex){
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
